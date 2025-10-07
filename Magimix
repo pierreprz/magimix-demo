@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Blender Power Magimix — Produit</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="#">MAGIMIX • clone</a>
+      <div class="cart-actions">
+        <button id="view-cart-btn" class="btn btn-outline">Voir le panier (<span id="cart-count">0</span>)</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container product-page">
+    <section class="product-card">
+      <div class="product-media">
+        <img id="product-image" src="45D45E99-479B-4330-9060-AD3477AF15FB.png" alt="Blender Power Magimix">
+      </div>
+
+      <div class="product-info">
+        <h1 id="product-title">Blender Power Magimix</h1>
+
+        <div class="price-block">
+          <div class="price-old" aria-hidden="true">249,00 €</div>
+          <div class="price-current" id="product-price">199,00 €</div>
+        </div>
+
+        <ul class="product-features">
+          <li>Moteur puissant pour smoothies et soupes</li>
+          <li>Bol en verre robuste</li>
+          <li>Design élégant et durable</li>
+          <li>Couleur : blanc</li>
+        </ul>
+
+        <div class="product-actions">
+          <button id="add-to-cart-btn" class="btn btn-primary">Ajouter au panier</button>
+          <button id="view-cart-btn-2" class="btn btn-outline">Voir le panier</button>
+        </div>
+
+        <p class="small-note">
+          Code promo : <strong>CCA15</strong> → -15% (à appliquer dans le panier)
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>Exemple pédagogique — clone visuel pour test.</small>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    // Configuration du produit : modifie ici si nécessaire
+    const PRODUCT = {
+      id: "magimix-blender-power-001",
+      name: "Blender Power Magimix",
+      price: 199.00,
+      oldPrice: 249.00,
+      image: document.getElementById('product-image').src
+    };
+
+    document.getElementById('product-title').textContent = PRODUCT.name;
+    document.getElementById('product-price').textContent = formatPrice(PRODUCT.price);
+    document.querySelector('.price-old').textContent = formatPrice(PRODUCT.oldPrice);
+
+    document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+      addToCart(PRODUCT);
+      flashAdded();
+    });
+
+    document.getElementById('view-cart-btn').addEventListener('click', () => {
+      window.location.href = 'panier.html';
+    });
+    document.getElementById('view-cart-btn-2').addEventListener('click', () => {
+      window.location.href = 'panier.html';
+    });
+
+    updateCartCount();
+
+    function flashAdded() {
+      const btn = document.getElementById('add-to-cart-btn');
+      btn.textContent = 'Ajouté ✓';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = 'Ajouter au panier';
+        btn.disabled = false;
+      }, 900);
+    }
+  </script>
+</body>
+</html><!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Panier — Magimix clone</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">MAGIMIX • clone</a>
+      <div class="cart-actions">
+        <button onclick="window.location.href='index.html'" class="btn btn-outline">Continuer mes achats</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container cart-page">
+    <h1>Votre panier</h1>
+
+    <section id="cart-container" class="cart-container">
+      <!-- Le contenu du panier est inséré par script.js -->
+    </section>
+
+    <aside class="cart-summary" id="cart-summary">
+      <!-- Résumé, total et code promo -->
+      <div class="summary-box">
+        <h2>Récapitulatif</h2>
+        <div class="summary-line">
+          <span>Sous-total :</span>
+          <span id="subtotal">0,00 €</span>
+        </div>
+
+        <div class="promo-row">
+          <input id="promo-input" type="text" placeholder="Code promo" aria-label="Code promo">
+          <button id="apply-promo" class="btn btn-primary">Appliquer</button>
+        </div>
+        <div id="promo-message" class="promo-message" aria-live="polite"></div>
+
+        <div class="summary-line summary-total">
+          <strong>Total :</strong>
+          <strong id="total">0,00 €</strong>
+        </div>
+
+        <button id="checkout-btn" class="btn btn-checkout">Valider la commande</button>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>Exemple pédagogique — clone visuel pour test.</small>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCartPage();
+    });
+
+    document.getElementById('apply-promo').addEventListener('click', () => {
+      const code = document.getElementById('promo-input').value.trim();
+      applyPromo(code);
+    });
+
+    document.getElementById('promo-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        applyPromo(e.target.value.trim());
+      }
+    });
+  </script>
+</body>
+</html>/* style.css — design minimaliste proche Magimix
+   couleurs : blanc, gris clair, rouge (accent)
+*/
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #222; background: #fafafa; line-height: 1.45; }
+.container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+.site-header { background: #fff; border-bottom: 1px solid #ececec; }
+.header-inner { display:flex; align-items:center; justify-content:space-between; padding: 12px 0; }
+.logo { font-weight:700; color:#c21c1c; text-decoration:none; letter-spacing:0.02em; }
+.cart-actions { display:flex; align-items:center; gap:10px; }
+.btn { padding: 10px 14px; border-radius: 6px; font-weight:600; cursor:pointer; border: 1px solid transparent; background: #fff; }
+.btn-primary { background: #c21c1c; color:#fff; border-color: #c21c1c; }
+.btn-outline { background: transparent; color: #222; border-color: #d8d8d8; }
+.btn-checkout { background: #0b6b4f; color: #fff; width: 100%; padding: 12px; margin-top: 12px; border-radius: 6px; }
+.product-page { padding: 28px 0; }
+.product-card { display:flex; gap: 40px; align-items:flex-start; background:#fff; border:1px solid #eee; padding:18px; border-radius:8px; }
+.product-media { flex: 0 0 480px; display:flex; align-items:center; justify-content:center; }
+.product-media img { max-width:100%; height:auto; border-radius:6px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+.product-info { flex:1; }
+.product-info h1 { font-size:26px; margin-bottom:10px; color:#111; }
+.price-block { display:flex; align-items:baseline; gap:12px; margin-bottom:12px; }
+.price-old { text-decoration: line-through; color:#888; font-size:15px; }
+.price-current { font-size:26px; color:#111; font-weight:700; }
+.product-features { margin: 14px 0; list-style: none; color:#444; }
+.product-features li { padding:4px 0; }
+.product-actions { display:flex; gap:10px; margin-top:16px; }
+.small-note { margin-top:12px; color:#666; font-size:14px; }
+.cart-page { display: grid; grid-template-columns: 1fr 360px; gap: 24px; padding: 28px 0; }
+.cart-container { background:#fff; border:1px solid #eee; padding:18px; border-radius:8px; }
+.cart-item { display:flex; gap:14px; padding:12px 0; align-items:center; border-bottom:1px solid #f1f1f1; }
+.cart-item:last-child { border-bottom:none; }
+.cart-item img { width:110px; height:110px; object-fit:cover; border-radius:6px; }
+.item-details { flex:1; }
+.item-title { font-weight:600; margin-bottom:6px; }
+.item-price { color:#333; font-weight:700; }
+.item-qty { color:#666; font-size:13px; margin-top:6px; }
+.summary-box { background:#fff; border:1px solid #eee; padding:18px; border-radius:8px; }
+.summary-line { display:flex; justify-content:space-between; padding:8px 0; color:#333; }
+.summary-total { font-size:18px; border-top:1px dashed #eee; padding-top:12px; margin-top:12px; }
+.promo-row { display:flex; gap:8px; margin-top:12px; }
+.promo-row input { flex:1; padding:10px; border:1px solid #ddd; border-radius:6px; }
+.promo-row button { padding:10px 12px; border-radius:6px; }
+.promo-message { margin-top:10px; color:#0b6b4f; font-weight:600; }
+.site-footer { margin-top:28px; padding:18px 0; text-align:center; color:#777; font-size:14px; }
+@media (max-width:900px){
+  .product-card { flex-direction:column; }
+  .product-media { width:100%; }
+  .cart-page { grid-template-columns: 1fr; }
+  .cart-summary { order:2; }
+  .cart-container { order:1; }
+}
