@@ -1,9 +1,72 @@
-<html>
+<!doctype html>
+<html lang="fr">
 <head>
-    <title>Panier</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Panier — Magimix clone</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Mon Panier</h1>
-    <p>Voici le contenu de votre panier.</p>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">MAGIMIX • clone</a>
+      <div class="cart-actions">
+        <button onclick="window.location.href='index.html'" class="btn btn-outline">Continuer mes achats</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container cart-page">
+    <h1>Votre panier</h1>
+
+    <section id="cart-container" class="cart-container"></section>
+
+    <aside class="cart-summary" id="cart-summary">
+      <div class="summary-box">
+        <h2>Récapitulatif</h2>
+        <div class="summary-line">
+          <span>Sous-total :</span>
+          <span id="subtotal">0,00 €</span>
+        </div>
+
+        <div class="promo-row">
+          <input id="promo-input" type="text" placeholder="Code promo" aria-label="Code promo">
+          <button id="apply-promo" class="btn btn-primary">Appliquer</button>
+        </div>
+        <div id="promo-message" class="promo-message" aria-live="polite"></div>
+
+        <div class="summary-line summary-total">
+          <strong>Total :</strong>
+          <strong id="total">0,00 €</strong>
+        </div>
+
+        <button id="checkout-btn" class="btn btn-checkout">Valider la commande</button>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>Exemple pédagogique — clone visuel pour test.</small>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCartPage();
+    });
+
+    document.getElementById('apply-promo').addEventListener('click', () => {
+      const code = document.getElementById('promo-input').value.trim();
+      applyPromo(code);
+    });
+
+    document.getElementById('promo-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        applyPromo(e.target.value.trim());
+      }
+    });
+  </script>
 </body>
 </html>
