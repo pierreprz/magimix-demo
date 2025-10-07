@@ -19,11 +19,14 @@
   <main class="container cart-page">
     <h1>Votre panier</h1>
 
-    <section id="cart-container" class="cart-container"></section>
+    <section id="cart-container" class="cart-container">
+      <!-- Contenu du panier inséré par script.js -->
+    </section>
 
     <aside class="cart-summary" id="cart-summary">
       <div class="summary-box">
         <h2>Récapitulatif</h2>
+
         <div class="summary-line">
           <span>Sous-total :</span>
           <span id="subtotal">0,00 €</span>
@@ -33,6 +36,7 @@
           <input id="promo-input" type="text" placeholder="Code promo" aria-label="Code promo">
           <button id="apply-promo" class="btn btn-primary">Appliquer</button>
         </div>
+
         <div id="promo-message" class="promo-message" aria-live="polite"></div>
 
         <div class="summary-line summary-total">
@@ -40,9 +44,10 @@
           <strong id="total">0,00 €</strong>
         </div>
 
+        <!-- ✅ Redirection vers confirmation.html -->
         <button id="checkout-btn" class="btn btn-checkout" onclick="window.location.href='confirmation.html'">
-  Valider la commande
-</button>
+          Valider la commande
+        </button>
       </div>
     </aside>
   </main>
@@ -55,15 +60,18 @@
 
   <script src="script.js"></script>
   <script>
+    // Affiche le contenu du panier dès le chargement
     document.addEventListener('DOMContentLoaded', () => {
       renderCartPage();
     });
 
+    // Application du code promo
     document.getElementById('apply-promo').addEventListener('click', () => {
       const code = document.getElementById('promo-input').value.trim();
       applyPromo(code);
     });
 
+    // Permet d'appliquer le code promo avec la touche Entrée
     document.getElementById('promo-input').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         applyPromo(e.target.value.trim());
