@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Confirmation de commande — Magimix clone</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">MAGIMIX • clone</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="confirmation-box">
+      <h1>Merci pour votre commande !</h1>
+
+      <p>Bonjour <strong>Master CCA</strong>,</p>
+      <p>Nous avons bien reçu votre commande et nous vous remercions pour votre confiance.</p>
+
+      <div class="order-summary">
+        <h2>Détails de la commande</h2>
+        <ul>
+          <li><strong>Nom :</strong> Master</li>
+          <li><strong>Prénom :</strong> CCA</li>
+          <li><strong>Adresse :</strong> Rue de l’Observatoire, 25000 Besançon</li>
+          <li><strong>Produit :</strong> Blender 4 Magimix</li>
+        </ul>
+      </div>
+
+      <p>
+        Vous allez prochainement recevoir un récapitulatif complet de votre commande par e-mail.  
+        Si vous avez des questions, n’hésitez pas à nous contacter.
+      </p>
+
+      <button class="btn btn-primary" onclick="window.location.href='index.html'">Retour à l’accueil</button>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>Exemple pédagogique — clone visuel pour test.</small>
+    </div>
+  </footer>
+
+  <style>
+    .confirmation-box {
+      background:#fff;
+      border:1px solid #eee;
+      padding:24px;
+      border-radius:8px;
+      margin-top:40px;
+      text-align:left;
+    }
+    .confirmation-box h1 { color:#0b6b4f; margin-bottom:12px; }
+    .confirmation-box h2 { margin-top:20px; margin-bottom:10px; }
+    .order-summary ul { list-style:none; margin-left:0; padding-left:0; }
+    .order-summary li { padding:6px 0; }
+  </style>
+</body>
+</html>
