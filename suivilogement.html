@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Notre recherche — logement à Besançon</title>
+<style>
+  :root{
+    --bg:#F4F6F3; --surface:#FFFFFF; --ink:#19241F; --ink-soft:#5C6C63;
+    --ink-faint:#8A988F; --line:#E5E9E4; --line-strong:#D6DCD5;
+    --primary:#2E6B4F; --primary-d:#235440; --primary-soft:#E7F0EA;
+    --danger:#B91C1C; --danger-soft:#FDECEC;
+    --radius:16px; --radius-sm:11px; --shadow:0 1px 2px rgba(25,36,31,.05),0 8px 24px -12px rgba(25,36,31,.18);
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--sans); color:var(--ink); background:var(--bg);
+    -webkit-font-smoothing:antialiased; line-height:1.45;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+  input,select,textarea{font-family:inherit; font-size:16px; color:var(--ink);}
+  :focus-visible{outline:2px solid var(--primary); outline-offset:2px; border-radius:6px;}
+
+  /* ---------- Header ---------- */
+  header{
+    background:linear-gradient(160deg,var(--primary) 0%,var(--primary-d) 100%);
+    color:#fff; padding:22px 20px 20px; padding-top:calc(22px + env(safe-area-inset-top));
+  }
+  .head-inner{max-width:960px; margin:0 auto; display:flex; align-items:center; gap:13px;}
+  .mark{
+    width:42px; height:42px; flex:0 0 42px; border-radius:13px;
+    background:rgba(255,255,255,.16); display:flex; align-items:center; justify-content:center;
+  }
+  .mark svg{width:24px; height:24px;}
+  .head-txt h1{margin:0; font-size:20px; font-weight:700; letter-spacing:-.2px; white-space:nowrap;}
+  .head-txt p{margin:2px 0 0; font-size:13px; color:rgba(255,255,255,.82); font-weight:500;}
+  .sync{margin-left:auto; display:flex; align-items:center; gap:11px;}
+  .sync-state{display:flex; align-items:center; gap:6px; font-size:12px; color:rgba(255,255,255,.85); white-space:nowrap;}
+  .dot{width:7px; height:7px; border-radius:50%; background:#9be3b5; transition:background .2s;}
+  .dot.saving{background:#ffe08a;} .dot.error{background:#ff9b9b;} .dot.offline{background:#cdd5cf;}
+  .refresh{
+    width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.14);
+    display:flex; align-items:center; justify-content:center; transition:background .15s;
+  }
+  .refresh:hover{background:rgba(255,255,255,.24);}
+  .refresh svg{width:18px; height:18px;}
+
+  main{max-width:960px; margin:0 auto; padding:0 16px 60px;}
+
+  /* ---------- Stats ---------- */
+  .stats{display:flex; gap:10px; overflow-x:auto; padding:16px 0 4px; margin:0 -16px; padding-left:16px; padding-right:16px; scrollbar-width:none;}
+  .stats::-webkit-scrollbar{display:none;}
+  .stat{
+    flex:1 0 auto; min-width:104px; background:var(--surface); border:1px solid var(--line);
+    border-radius:var(--radius-sm); padding:12px 14px;
+  }
+  .stat .n{font-size:23px; font-weight:700; letter-spacing:-.5px; line-height:1;}
+  .stat .l{font-size:11.5px; color:var(--ink-soft); margin-top:5px; font-weight:600; text-transform:uppercase; letter-spacing:.3px;}
+  .stat.accent .n{color:var(--primary);}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{display:flex; gap:10px; align-items:center; margin-top:14px;}
+  .search{
+    flex:1; display:flex; align-items:center; gap:8px; background:var(--surface);
+    border:1px solid var(--line); border-radius:var(--radius-sm); padding:0 13px; height:46px;
+  }
+  .search svg{width:17px; height:17px; color:var(--ink-faint); flex:0 0 17px;}
+  .search input{border:none; outline:none; background:none; flex:1; min-width:0; padding:0;}
+  .add{
+    height:46px; padding:0 16px; background:var(--primary); color:#fff; border-radius:var(--radius-sm);
+    font-weight:650; font-size:14.5px; display:flex; align-items:center; gap:7px; white-space:nowrap;
+    transition:background .15s, transform .05s;
+  }
+  .add:hover{background:var(--primary-d);} .add:active{transform:translateY(1px);}
+  .add svg{width:17px; height:17px;}
+
+  .controls2{display:flex; gap:10px; align-items:center; margin-top:11px;}
+  .chips{display:flex; gap:7px; overflow-x:auto; flex:1; padding-bottom:2px; scrollbar-width:none;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:0 0 auto; padding:7px 13px; border-radius:999px; background:var(--surface);
+    border:1px solid var(--line-strong); font-size:13px; font-weight:600; color:var(--ink-soft);
+    white-space:nowrap; transition:.12s;
+  }
+  .chip:hover{border-color:var(--primary);}
+  .chip.on{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .chip .c{opacity:.6; margin-left:4px; font-weight:600;}
+  .sort{
+    flex:0 0 auto; height:36px; padding:0 30px 0 12px; border:1px solid var(--line-strong);
+    border-radius:999px; background:var(--surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235C6C63' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 11px center;
+    -webkit-appearance:none; appearance:none; font-size:13px; font-weight:600; color:var(--ink-soft);
+  }
+
+  /* ---------- Cards ---------- */
+  .grid{display:grid; grid-template-columns:1fr; gap:13px; margin-top:18px;}
+  @media(min-width:680px){ .grid{grid-template-columns:1fr 1fr;} }
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px 16px 13px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:9px;
+  }
+  .c-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
+  .badge{
+    display:inline-flex; align-items:center; padding:4px 10px; border-radius:999px;
+    font-size:12px; font-weight:700; letter-spacing:.1px; white-space:nowrap;
+  }
+  .price{text-align:right; line-height:1.1;}
+  .price b{font-size:19px; font-weight:750; letter-spacing:-.4px;}
+  .price span{display:block; font-size:10.5px; color:var(--ink-faint); font-weight:600; margin-top:1px; text-transform:uppercase; letter-spacing:.4px;}
+  .c-title{font-size:16.5px; font-weight:700; letter-spacing:-.2px; line-height:1.25;}
+  .c-meta{font-size:13.5px; color:var(--ink-soft); font-weight:500;}
+  .c-meta .sep{color:var(--line-strong); margin:0 6px;}
+  .c-sub{font-size:12.5px; color:var(--ink-faint); font-weight:500; display:flex; flex-wrap:wrap; gap:4px 0;}
+  .c-sub .sep{color:var(--line-strong); margin:0 6px;}
+  .pills{display:flex; flex-wrap:wrap; gap:7px; align-items:center;}
+  .pill{
+    font-size:11.5px; font-weight:650; padding:4px 9px; border-radius:8px;
+    background:#F1F4F0; color:var(--ink-soft); border:1px solid var(--line);
+  }
+  .c-notes{font-size:13px; color:var(--ink-soft); background:#F7F9F6; border-radius:10px; padding:9px 11px; border:1px solid var(--line);}
+  .c-foot{display:flex; align-items:center; gap:8px; margin-top:3px; padding-top:11px; border-top:1px solid var(--line);}
+  .link{
+    display:inline-flex; align-items:center; gap:5px; font-size:13px; font-weight:650; color:var(--primary);
+  }
+  .link svg{width:13px; height:13px;}
+  .spacer{flex:1;}
+  .icon-btn{
+    width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    color:var(--ink-soft); border:1px solid var(--line); transition:.12s; background:var(--surface);
+  }
+  .icon-btn:hover{border-color:var(--line-strong); background:#F4F6F3;}
+  .icon-btn svg{width:16px; height:16px;}
+  .icon-btn.del{color:var(--danger);}
+  .icon-btn.del.confirm{background:var(--danger); color:#fff; border-color:var(--danger); width:auto; padding:0 12px; font-size:12.5px; font-weight:700; gap:5px;}
+
+  /* ---------- Empty ---------- */
+  .empty{
+    text-align:center; padding:54px 24px; background:var(--surface);
+    border:1px dashed var(--line-strong); border-radius:var(--radius); margin-top:18px;
+  }
+  .empty svg{width:42px; height:42px; color:var(--line-strong); margin-bottom:12px;}
+  .empty h3{margin:0 0 6px; font-size:16px;}
+  .empty p{margin:0 0 18px; color:var(--ink-soft); font-size:14px;}
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(25,36,31,.45); display:none;
+    align-items:flex-end; justify-content:center; z-index:50; backdrop-filter:blur(2px);
+  }
+  .overlay.open{display:flex;}
+  @media(min-width:560px){ .overlay{align-items:center; padding:24px;} }
+  .sheet{
+    background:var(--bg); width:100%; max-width:560px; max-height:92vh; overflow-y:auto;
+    border-radius:22px 22px 0 0; box-shadow:0 -10px 40px rgba(0,0,0,.2);
+    animation:slideUp .26s cubic-bezier(.22,1,.36,1);
+  }
+  @media(min-width:560px){ .sheet{border-radius:20px; animation:pop .2s ease;} }
+  @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+  @keyframes pop{from{transform:scale(.97); opacity:0;}to{transform:scale(1); opacity:1;}}
+  .sheet-head{
+    position:sticky; top:0; background:var(--bg); padding:18px 20px 12px; z-index:2;
+    display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line);
+  }
+  .sheet-head h2{margin:0; font-size:18px; font-weight:700;}
+  .close{width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:var(--ink-soft);}
+  .close:hover{background:var(--line);}
+  .close svg{width:19px; height:19px;}
+  form{padding:16px 20px 22px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; letter-spacing:.2px;}
+  .ctrl{
+    width:100%; padding:11px 13px; border:1px solid var(--line-strong); border-radius:11px;
+    background:var(--surface); outline:none; transition:border .12s, box-shadow .12s;
+  }
+  .ctrl:focus{border-color:var(--primary); box-shadow:0 0 0 3px var(--primary-soft);}
+  select.ctrl{-webkit-appearance:none; appearance:none; background:var(--surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%235C6C63' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 13px center;}
+  textarea.ctrl{resize:vertical; min-height:62px;}
+  .row{display:flex; gap:12px;}
+  .row .field{flex:1;}
+  .ccbox{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--primary-soft); border:1px solid #cfe1d6; border-radius:11px; padding:11px 14px; margin-bottom:14px;
+  }
+  .ccbox .lab{font-size:13px; font-weight:700; color:var(--primary-d);}
+  .ccbox .val{font-size:18px; font-weight:750; color:var(--primary-d); letter-spacing:-.3px;}
+  .form-msg{font-size:13px; color:var(--danger); margin:-4px 0 12px; display:none;}
+  .form-msg.show{display:block;}
+  .actions{display:flex; gap:10px; margin-top:6px;}
+  .btn-secondary{flex:0 0 auto; padding:13px 18px; border:1px solid var(--line-strong); border-radius:12px; background:var(--surface); font-weight:650; font-size:15px; color:var(--ink-soft);}
+  .btn-secondary:hover{background:var(--line);}
+  .btn-primary{flex:1; padding:13px; background:var(--primary); color:#fff; border-radius:12px; font-weight:700; font-size:15px; transition:background .15s;}
+  .btn-primary:hover{background:var(--primary-d);}
+
+  .loading{text-align:center; padding:60px 20px; color:var(--ink-soft); font-size:14px;}
+
+  @media(max-width:520px){
+    .head-txt h1{font-size:17px;}
+    #syncTxt{display:none;}
+    .sync{gap:8px;}
+  }
+  @media(prefers-reduced-motion:reduce){ *{animation:none!important; transition:none!important;} }
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9.5 20v-6h5v6"/>
+      </svg>
+    </div>
+    <div class="head-txt">
+      <h1>Notre recherche</h1>
+      <p>Logement à Besançon · à deux</p>
+    </div>
+    <div class="sync">
+      <div class="sync-state"><span class="dot" id="dot"></span><span id="syncTxt">Synchronisé</span></div>
+      <button class="refresh" id="refreshBtn" title="Rafraîchir" aria-label="Rafraîchir la liste">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="stats" id="stats"></div>
+
+  <div class="toolbar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+      <input id="search" type="search" placeholder="Rechercher (quartier, agence…)" autocomplete="off">
+    </div>
+    <button class="add" id="addBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Ajouter</span>
+    </button>
+  </div>
+
+  <div class="controls2">
+    <div class="chips" id="chips"></div>
+    <select class="sort" id="sort" aria-label="Trier">
+      <option value="recent">Plus récent</option>
+      <option value="prix_asc">Loyer ↑</option>
+      <option value="prix_desc">Loyer ↓</option>
+      <option value="quartier">Quartier A→Z</option>
+    </select>
+  </div>
+
+  <div id="list"><div class="loading">Chargement…</div></div>
+</main>
+
+<!-- Modal -->
+<div class="overlay" id="overlay">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">Ajouter un bien</h2>
+      <button class="close" id="closeBtn" aria-label="Fermer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <form id="form" novalidate>
+      <div class="row">
+        <div class="field">
+          <label for="f_statut">Statut</label>
+          <select class="ctrl" id="f_statut"></select>
+        </div>
+        <div class="field">
+          <label for="f_dossier">Dépôt du dossier</label>
+          <select class="ctrl" id="f_dossier"></select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="f_quartier">Quartier</label>
+          <input class="ctrl" id="f_quartier" placeholder="Ex. Chaprais">
+        </div>
+        <div class="field">
+          <label for="f_type">Type</label>
+          <input class="ctrl" id="f_type" placeholder="Ex. T2 meublé">
+        </div>
+      </div>
+      <div class="field">
+        <label for="f_adresse">Adresse</label>
+        <input class="ctrl" id="f_adresse" placeholder="Ex. 12 rue des Granges">
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="f_surface">Surface (m²)</label>
+          <input class="ctrl" id="f_surface" type="number" inputmode="numeric" min="0" placeholder="42">
+        </div>
+        <div class="field">
+          <label for="f_garantie">Dépôt de garantie (€)</label>
+          <input class="ctrl" id="f_garantie" type="number" inputmode="numeric" min="0" placeholder="620">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="f_hc">Loyer hors charges (€)</label>
+          <input class="ctrl" id="f_hc" type="number" inputmode="numeric" min="0" placeholder="620">
+        </div>
+        <div class="field">
+          <label for="f_charges">Charges (€)</label>
+          <input class="ctrl" id="f_charges" type="number" inputmode="numeric" min="0" placeholder="50">
+        </div>
+      </div>
+      <div class="ccbox">
+        <span class="lab">Loyer charges comprises</span>
+        <span class="val" id="ccPreview">—</span>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="f_agence">Agence / Bailleur</label>
+          <input class="ctrl" id="f_agence" placeholder="Ex. Square Habitat">
+        </div>
+        <div class="field">
+          <label for="f_visite">Date de visite</label>
+          <input class="ctrl" id="f_visite" type="date">
+        </div>
+      </div>
+      <div class="field">
+        <label for="f_contact">Contact</label>
+        <input class="ctrl" id="f_contact" placeholder="Téléphone ou e-mail">
+      </div>
+      <div class="field">
+        <label for="f_lien">Lien de l'annonce</label>
+        <input class="ctrl" id="f_lien" type="url" inputmode="url" placeholder="Colle l'adresse de l'annonce">
+      </div>
+      <div class="field">
+        <label for="f_notes">Notes</label>
+        <textarea class="ctrl" id="f_notes" placeholder="Points forts, points faibles, disponibilité…"></textarea>
+      </div>
+      <div class="form-msg" id="formMsg">Indique au moins un quartier ou une adresse.</div>
+      <div class="actions">
+        <button type="button" class="btn-secondary" id="cancelBtn">Annuler</button>
+        <button type="submit" class="btn-primary" id="saveBtn">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const KEY='biens';
+const STATUTS=['À visiter','Visite prévue','Visité','Dossier envoyé','Accepté','Refusé','Abandonné'];
+const DOSSIERS=['Non commencé','En préparation','Envoyé','Validé','Refusé'];
+const STYLES={
+  'À visiter':{bg:'#DBEAFE',fg:'#1D4ED8'},
+  'Visite prévue':{bg:'#FEF3C7',fg:'#B45309'},
+  'Visité':{bg:'#E2E8F0',fg:'#475569'},
+  'Dossier envoyé':{bg:'#EDE9FE',fg:'#6D28D9'},
+  'Accepté':{bg:'#DCFCE7',fg:'#15803D'},
+  'Refusé':{bg:'#FEE2E2',fg:'#B91C1C'},
+  'Abandonné':{bg:'#F3F4F6',fg:'#6B7280'},
+  'Non commencé':{bg:'#F3F4F6',fg:'#6B7280'},
+  'En préparation':{bg:'#FEF3C7',fg:'#B45309'},
+  'Envoyé':{bg:'#DBEAFE',fg:'#1D4ED8'},
+  'Validé':{bg:'#DCFCE7',fg:'#15803D'}
+};
+
+let items=[], filter='Tous', query='', sort='recent', editingId=null, storageOK=true, confirmId=null;
+
+const eur=v=>(v||v===0)? new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(v):'';
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>{const n=parseFloat(String(v).replace(',','.'));return isNaN(n)?null:n;};
+const cc=it=>{const h=it.loyerHC,c=it.charges; if(h==null&&c==null)return null; return (h||0)+(c||0);};
+const fmtDate=iso=>{ if(!iso)return ''; const p=iso.split('-'); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:iso; };
+const $=id=>document.getElementById(id);
+
+/* ---------- Storage ---------- */
+function setSync(state){
+  const dot=$('dot'), txt=$('syncTxt');
+  dot.className='dot'+(state==='saving'?' saving':state==='error'?' error':state==='offline'?' offline':'');
+  txt.textContent={saved:'Synchronisé',saving:'Enregistrement…',error:'Erreur d’enregistrement',offline:'Local (non sauvegardé)'}[state]||'Synchronisé';
+}
+async function loadData(){
+  if(!window.storage){ storageOK=false; items=[]; setSync('offline'); return; }
+  try{ const r=await window.storage.get(KEY,true); items=r&&r.value?JSON.parse(r.value):[]; setSync('saved'); }
+  catch(e){ items=[]; setSync('saved'); }
+}
+async function saveData(){
+  if(!storageOK){ setSync('offline'); return; }
+  setSync('saving');
+  try{ const r=await window.storage.set(KEY,JSON.stringify(items),true); if(!r)throw 0; setSync('saved'); }
+  catch(e){ setSync('error'); }
+}
+
+/* ---------- Render ---------- */
+function visible(){
+  let r=items.filter(it=>{
+    if(filter!=='Tous' && it.statut!==filter) return false;
+    if(query){ const q=query.toLowerCase();
+      const hay=[it.quartier,it.agence,it.adresse,it.type,it.notes].map(x=>(x||'').toLowerCase()).join(' ');
+      if(!hay.includes(q)) return false; }
+    return true;
+  });
+  if(sort==='prix_asc') r.sort((a,b)=>(cc(a)??1e9)-(cc(b)??1e9));
+  else if(sort==='prix_desc') r.sort((a,b)=>(cc(b)??-1)-(cc(a)??-1));
+  else if(sort==='quartier') r.sort((a,b)=>(a.quartier||'').localeCompare(b.quartier||'','fr'));
+  else r.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  return r;
+}
+function renderStats(){
+  const n=items.length;
+  const c=s=>items.filter(i=>i.statut===s).length;
+  const dossiers=items.filter(i=>i.dossier==='Envoyé'||i.dossier==='Validé').length;
+  const loyers=items.map(cc).filter(v=>v!=null&&v>0);
+  const moy=loyers.length?Math.round(loyers.reduce((a,b)=>a+b,0)/loyers.length):null;
+  const data=[
+    {n:n,l:'Biens suivis',accent:true},
+    {n:c('À visiter'),l:'À visiter'},
+    {n:c('Visité'),l:'Visités'},
+    {n:dossiers,l:'Dossiers envoyés'},
+    {n:moy!=null?eur(moy):'—',l:'Loyer moyen CC'}
+  ];
+  $('stats').innerHTML=data.map(d=>`<div class="stat${d.accent?' accent':''}"><div class="n">${d.n}</div><div class="l">${d.l}</div></div>`).join('');
+}
+function renderChips(){
+  const opts=['Tous',...STATUTS];
+  $('chips').innerHTML=opts.map(o=>{
+    const count=o==='Tous'?items.length:items.filter(i=>i.statut===o).length;
+    return `<button class="chip${filter===o?' on':''}" data-f="${esc(o)}">${esc(o)}<span class="c">${count}</span></button>`;
+  }).join('');
+}
+function badge(v){ const s=STYLES[v]||{bg:'#F1F4F0',fg:'#5C6C63'}; return `<span class="badge" style="background:${s.bg};color:${s.fg}">${esc(v)}</span>`; }
+function card(it){
+  const price=cc(it);
+  const title=[it.quartier,it.type].filter(Boolean).map(esc).join(' <span class="sep">·</span> ')||'Sans titre';
+  const meta=[it.surface!=null?esc(it.surface)+' m²':'',esc(it.adresse)].filter(Boolean).join(' <span class="sep">·</span> ');
+  const sub=[esc(it.agence),esc(it.contact),it.dateVisite?'visite '+esc(fmtDate(it.dateVisite)):''].filter(Boolean).join(' <span class="sep">·</span> ');
+  const pills=[];
+  if(it.dossier) pills.push(`<span style="display:inline-block">${badge(it.dossier)}</span>`);
+  if(it.garantie!=null) pills.push(`<span class="pill">Dépôt ${eur(it.garantie)}</span>`);
+  let lienHref=(it.lien||'').trim();
+  if(lienHref && !/^https?:\/\//i.test(lienHref)) lienHref='https://'+lienHref;
+  const isDel=confirmId===it.id;
+  return `<article class="card">
+    <div class="c-top">${badge(it.statut||'À visiter')}
+      ${price!=null?`<div class="price"><b>${eur(price)}</b><span>/ mois CC</span></div>`:''}</div>
+    <div class="c-title">${title}</div>
+    ${meta?`<div class="c-meta">${meta}</div>`:''}
+    ${sub?`<div class="c-sub">${sub}</div>`:''}
+    ${pills.length?`<div class="pills">${pills.join('')}</div>`:''}
+    ${it.notes?`<div class="c-notes">${esc(it.notes)}</div>`:''}
+    <div class="c-foot">
+      ${lienHref?`<a class="link" href="${esc(lienHref)}" target="_blank" rel="noopener">Voir l'annonce <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a>`:''}
+      <span class="spacer"></span>
+      <button class="icon-btn" data-edit="${it.id}" aria-label="Modifier">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+      <button class="icon-btn del${isDel?' confirm':''}" data-del="${it.id}" aria-label="Supprimer">
+        ${isDel?'Confirmer':`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>`}
+      </button>
+    </div>
+  </article>`;
+}
+function render(){
+  renderStats(); renderChips();
+  const list=$('list'); const v=visible();
+  if(items.length===0){
+    list.innerHTML=`<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>
+      <h3>Aucun bien pour l'instant</h3>
+      <p>Ajoutez la première annonce que vous avez repérée tous les deux.</p>
+      <button class="add" style="margin:0 auto" onclick="openForm()"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span>Ajouter un bien</span></button>
+    </div>`; return;
+  }
+  if(v.length===0){ list.innerHTML=`<div class="empty"><h3>Aucun résultat</h3><p>Aucun bien ne correspond à ce filtre ou à cette recherche.</p></div>`; return; }
+  list.innerHTML=`<div class="grid">${v.map(card).join('')}</div>`;
+}
+
+/* ---------- Form ---------- */
+function fillSelect(el,opts){ el.innerHTML=opts.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join(''); }
+function updateCC(){ const h=num($('f_hc').value),c=num($('f_charges').value); const t=(h==null&&c==null)?null:(h||0)+(c||0); $('ccPreview').textContent=t!=null?eur(t):'—'; }
+function openForm(id){
+  editingId=id||null;
+  $('sheetTitle').textContent=editingId?'Modifier le bien':'Ajouter un bien';
+  $('formMsg').classList.remove('show');
+  const it=editingId?items.find(x=>x.id===editingId):{};
+  $('f_statut').value=it.statut||'À visiter';
+  $('f_dossier').value=it.dossier||'Non commencé';
+  $('f_quartier').value=it.quartier||''; $('f_type').value=it.type||'';
+  $('f_adresse').value=it.adresse||'';
+  $('f_surface').value=it.surface??''; $('f_garantie').value=it.garantie??'';
+  $('f_hc').value=it.loyerHC??''; $('f_charges').value=it.charges??'';
+  $('f_agence').value=it.agence||''; $('f_visite').value=it.dateVisite||'';
+  $('f_contact').value=it.contact||''; $('f_lien').value=it.lien||''; $('f_notes').value=it.notes||'';
+  updateCC();
+  $('overlay').classList.add('open'); document.body.style.overflow='hidden';
+}
+function closeForm(){ $('overlay').classList.remove('open'); document.body.style.overflow=''; }
+async function submitForm(e){
+  e.preventDefault();
+  const quartier=$('f_quartier').value.trim(), adresse=$('f_adresse').value.trim();
+  if(!quartier && !adresse){ $('formMsg').classList.add('show'); return; }
+  const data={
+    statut:$('f_statut').value, dossier:$('f_dossier').value,
+    quartier, type:$('f_type').value.trim(), adresse,
+    surface:num($('f_surface').value), garantie:num($('f_garantie').value),
+    loyerHC:num($('f_hc').value), charges:num($('f_charges').value),
+    agence:$('f_agence').value.trim(), dateVisite:$('f_visite').value,
+    contact:$('f_contact').value.trim(), lien:$('f_lien').value.trim(), notes:$('f_notes').value.trim()
+  };
+  if(editingId){ const i=items.findIndex(x=>x.id===editingId); if(i>-1) items[i]={...items[i],...data}; }
+  else { items.push({id:Date.now()+'-'+Math.random().toString(36).slice(2,7),createdAt:Date.now(),...data}); }
+  closeForm(); render(); await saveData();
+}
+
+/* ---------- Events ---------- */
+$('addBtn').onclick=()=>openForm();
+$('closeBtn').onclick=closeForm; $('cancelBtn').onclick=closeForm;
+$('overlay').onclick=e=>{ if(e.target===$('overlay')) closeForm(); };
+$('form').onsubmit=submitForm;
+$('f_hc').oninput=updateCC; $('f_charges').oninput=updateCC;
+$('search').oninput=e=>{ query=e.target.value.trim(); confirmId=null; render(); };
+$('sort').onchange=e=>{ sort=e.target.value; render(); };
+$('chips').onclick=e=>{ const b=e.target.closest('.chip'); if(!b)return; filter=b.dataset.f; confirmId=null; render(); };
+$('list').onclick=async e=>{
+  const ed=e.target.closest('[data-edit]'); if(ed){ confirmId=null; openForm(ed.dataset.edit); return; }
+  const dl=e.target.closest('[data-del]'); if(dl){ const id=dl.dataset.del;
+    if(confirmId===id){ items=items.filter(x=>x.id!==id); confirmId=null; render(); await saveData(); }
+    else { confirmId=id; render(); setTimeout(()=>{ if(confirmId===id){confirmId=null; render();} },3500); }
+  }
+};
+$('refreshBtn').onclick=async()=>{ const r=$('refreshBtn'); r.style.opacity='.5'; await loadData(); render(); setTimeout(()=>r.style.opacity='1',300); };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('overlay').classList.contains('open')) closeForm(); });
+document.addEventListener('visibilitychange',async()=>{ if(!document.hidden && storageOK && !$('overlay').classList.contains('open')){ await loadData(); render(); } });
+window.addEventListener('focus',async()=>{ if(storageOK && !$('overlay').classList.contains('open')){ await loadData(); render(); } });
+
+/* ---------- Init ---------- */
+fillSelect($('f_statut'),STATUTS); fillSelect($('f_dossier'),DOSSIERS);
+(async()=>{ await loadData(); render(); })();
+</script>
+</body>
+</html>
